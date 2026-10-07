@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据统计 · 智慧自习室信息与数据展示中心</title>
+  <link href="libs/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+  <!-- ============ 全站统一导航 ============ -->
+  <nav class="navbar navbar-expand-lg navbar-dark site-nav sticky-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">
+        <svg class="brand-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path fill="currentColor" d="M12 3 1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-3.72v3.71z"/>
+        </svg>
+        智慧自习室
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#mainNav" aria-controls="mainNav"
+              aria-expanded="false" aria-label="切换导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">首页</a></li>
+          <li class="nav-item"><a class="nav-link" href="rooms.html">自习室查询</a></li>
+          <li class="nav-item"><a class="nav-link" href="stats.html">数据统计</a></li>
+          <li class="nav-item"><a class="nav-link" href="scene.html">三维导览</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4 py-lg-5">
+    <!-- ============ 页头 ============ -->
+    <header class="mb-4">
+      <h1 class="h3 fw-bold">数据统计</h1>
+      <p class="text-muted mb-0">基于本地 JSON 数据，用柱状图、饼图、折线图三类图表展示座位与人流情况。</p>
+      <p class="text-muted small mb-0 mt-1" id="stats-meta">正在加载数据…</p>
+    </header>
+
+    <!-- 加载失败提示区 -->
+    <div id="stats-error"></div>
+
+    <!-- 加载占位 -->
+    <div id="stats-loading">
+      <div class="loading-placeholder">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 mb-0">正在加载统计数据…</p>
+      </div>
+    </div>
+
+    <div id="stats-content" class="d-none">
+      <!-- ============ 第一行：柱状图 + 饼图 ============ -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h2 class="h6 text-muted">各楼宇座位与当前占用情况（柱状图）</h2>
+              <div id="chart-building" class="chart-box"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h2 class="h6 text-muted">自习室开放状态分布（饼图）</h2>
+              <div id="chart-status" class="chart-box"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 第二行：折线图 ============ -->
+      <div class="row g-4">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <h2 class="h6 text-muted">本周每日入馆人次与平均上座率（双轴折线图）</h2>
+              <div id="chart-flow" class="chart-box"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ 页脚 ============ -->
+  <footer class="site-footer py-4 mt-5">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small">
+      <span>© <span data-year>2026</span> 智慧自习室信息与数据展示中心</span>
+      <span><a href="index.html">首页</a> / <a href="rooms.html">自习室查询</a> / <a href="scene.html">三维导览</a></span>
+    </div>
+  </footer>
+
+  <script src="libs/jquery-3.7.1.min.js"></script>
+  <script src="libs/bootstrap.bundle.min.js"></script>
+  <script src="libs/echarts.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/stats.js"></script>
+</body>
+</html>
