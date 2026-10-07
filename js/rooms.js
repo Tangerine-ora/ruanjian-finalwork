@@ -5,12 +5,30 @@
 
 $(function () {
   /* ---------- 状态 ---------- */
-  let rooms = [];                 // 全量自习室
+  let rooms = [];                 // 全量自习室（JSON + 本地新增）
+  const STORAGE_KEY = 'studyroom_added_v1';
   const filters = {
     keyword: '',
     building: 'all',
     status: 'all'
   };
+
+  /* ---------- 读取本地新增的自习室（JSON 解析失败时兜底为空数组） ---------- */
+  const loadAddedRooms = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      return Array.isArray(saved) ? saved : [];
+    } catch (err) {
+      console.warn('本地新增数据解析失败，已忽略：', err);
+      return [];
+    }
+  };
+
+  const saveAddedRooms = (added) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(added));
+  };
+
+  let addedRooms = loadAddedRooms();
 
   /* ---------- DOM 引用 ---------- */
   const $list = $('#room-list');
@@ -48,11 +66,20 @@ $(function () {
       .map(t => '<span class="tag-pill">' + escapeHtml(t) + '</span>')
       .join('');
 
-    return '<div class="card h-100 room-card">' +
-      '<div class="card-body">' +
+    // 用户自行添加的房间：加黄色标记和删除入口
+    const addedBadge = room.userAdded
+      ? '<span class="badge text-bg-warning text-dark">我添加的</span>'
+      : '';
+    const deleteBtn = room.userAdded
+      ? '<button type="button" class="btn btn-sm btn-outline-danger btn-delete mt-3" ' +
+          'data-id="' + room.id + '">删除该登记</button>'
+      : '';
+
+    return '<div class="card h-100 room-card' + (room.userAdded ? ' user-added' : '') + '">' +
+      '<div class="card-body d-flex flex-column">' +
         '<div class="d-flex justify-content-between align-items-start gap-2">' +
           '<h2 class="h6 card-title mb-0">' + escapeHtml(room.name) + '</h2>' +
-          statusBadge(room.status) +
+          '<span class="text-end">' + addedBadge + ' ' + statusBadge(room.status) + '</span>' +
         '</div>' +
         '<p class="small text-muted mb-1 mt-2">' +
           escapeHtml(room.building) + ' · ' + room.floor + '楼 · ' + escapeHtml(room.type || '综合区') +
@@ -61,6 +88,7 @@ $(function () {
         '<p class="small mb-1">' + seatText + '</p>' +
         '<p class="small text-muted mb-2">开放时间：' + escapeHtml(room.hours) + '</p>' +
         '<div>' + tags + '</div>' +
+        deleteBtn +
       '</div>' +
     '</div>';
   };
@@ -122,7 +150,8 @@ $(function () {
       if (!data || !Array.isArray(data.rooms) || data.rooms.length === 0) {
         throw new Error('自习室数据为空，请联系管理员更新 rooms.json。');
       }
-      rooms = data.rooms;
+      // 远端 JSON 为基础数据，合并本浏览器 localStorage 中的新增登记
+      rooms = data.rooms.concat(addedRooms);
       renderBuildingButtons();
       render();
     } catch (err) {
@@ -160,6 +189,122 @@ $(function () {
     $(this).siblings('button').removeClass('active');
     $(this).addClass('active');
     render();
+  });
+
+  /* ============================================================
+   * 添加自习室：Bootstrap 模态框 + 表单校验 + localStorage
+   * ============================================================ */
+
+  const addModalEl = document.querySelector('#add-modal');
+  const addModal = new bootstrap.Modal(addModalEl);
+  const $form = $('#add-form');
+  const toast = new bootstrap.Toast(document.querySelector('#op-toast'));
+
+  const showToast = (msg, ok) => {
+    $('#op-toast-text').text(msg);
+    $('#op-toast').toggleClass('text-bg-success', ok !== false)
+                  .toggleClass('text-bg-danger', ok === false);
+    toast.show();
+  };
+
+  /* ---------- 打开模态框 ---------- */
+  $('#btn-add-room').on('click', () => addModal.show());
+
+  /* ---------- 关闭后清空表单与校验状态 ---------- */
+  addModalEl.addEventListener('hidden.bs.modal', () => {
+    $form.removeClass('was-validated')[0].reset();
+    $form.find('.is-invalid').removeClass('is-invalid');
+  });
+
+  /* ---------- 提交：逐字段校验，拦截非法输入 ---------- */
+  $form.on('submit', (e) => {
+    e.preventDefault();
+
+    const name = $('#form-name').val().trim();
+    const building = $('#form-building').val();
+    const floor = Number($('#form-floor').val());
+    const seats = Number($('#form-seats').val());
+    const occupied = Number($('#form-occupied').val());
+    const status = $('#form-status').val();
+    const hours = $('#form-hours').val().trim();
+
+    // 逐字段规则校验，非法字段标红并给出原因
+    let valid = true;
+    const setInvalid = (id, bad) => {
+      $('#' + id).toggleClass('is-invalid', bad);
+      if (bad) valid = false;
+    };
+
+    setInvalid('form-name', !(name.length >= 2 && name.length <= 20));
+    setInvalid('form-building', building === '');
+    setInvalid('form-floor', !Number.isInteger(floor) || floor < 1 || floor > 9);
+    setInvalid('form-seats', !Number.isInteger(seats) || seats < 1 || seats > 500);
+
+    // 已占用必须是 0 ~ 总座位数之间的整数（跨字段校验）
+    const occupiedBad = !Number.isInteger(occupied) || occupied < 0 || occupied > seats;
+    setInvalid('form-occupied', occupiedBad);
+    $('#occupied-feedback').text(
+      seats && occupied > seats
+        ? '已占用数不能大于总座位数（' + seats + '）。'
+        : '已占用数须为不超过总座位数的非负整数。'
+    );
+
+    setInvalid('form-hours', hours.length === 0);
+
+    if (!valid) {
+      // 非法输入：不提交，顶部滚动提示 + 字段级红字反馈
+      showToast('表单存在非法输入，请按提示修改后再提交。', false);
+      return;
+    }
+
+    // 同名房间拦截，避免重复登记
+    const duplicated = rooms.some(r => r.name === name);
+    if (duplicated) {
+      setInvalid('form-name', true);
+      showToast('已存在同名自习室，请勿重复添加。', false);
+      return;
+    }
+
+    // 生成新房间（id 取现有最大值 + 1，打 userAdded 标记）
+    const nextId = rooms.reduce((max, r) => Math.max(max, r.id), 0) + 1;
+    const newRoom = {
+      id: nextId,
+      name: name,
+      building: building,
+      floor: floor,
+      type: '综合区',
+      seats: seats,
+      occupied: status === '开放' ? occupied : 0,
+      status: status,
+      hours: hours,
+      tags: ['用户登记'],
+      userAdded: true
+    };
+
+    addedRooms.push(newRoom);
+    saveAddedRooms(addedRooms);
+    rooms.push(newRoom);
+
+    renderBuildingButtons();
+    render();
+    addModal.hide();
+    showToast('自习室「' + name + '」添加成功。');
+  });
+
+  /* ---------- 删除本地登记（事件委托，按钮是动态渲染的） ---------- */
+  $list.on('click', '.btn-delete', function () {
+    const id = Number($(this).data('id'));
+    const target = rooms.find(r => r.id === id);
+    if (!target || !target.userAdded) return;
+
+    if (!window.confirm('确定删除自习室「' + target.name + '」的本地登记吗？')) return;
+
+    addedRooms = addedRooms.filter(r => r.id !== id);
+    saveAddedRooms(addedRooms);
+    rooms = rooms.filter(r => r.id !== id);
+    renderBuildingButtons();
+    render();
+    showToast('已删除该自习室登记。');
   });
 
   loadRooms();
