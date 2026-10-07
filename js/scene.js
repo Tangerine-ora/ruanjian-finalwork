@@ -13,8 +13,8 @@ $(function () {
 
   /* ---------- 相机 ---------- */
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
-  const HOME_POS = new THREE.Vector3(0, 19, 30);
-  const HOME_TARGET = new THREE.Vector3(0, 0, 0);
+  const HOME_POS = new THREE.Vector3(0, 12, 23);
+  const HOME_TARGET = new THREE.Vector3(0, 0.5, 0);
   camera.position.copy(HOME_POS);
   camera.lookAt(HOME_TARGET);
 
@@ -77,8 +77,8 @@ $(function () {
 
   /* ---------- 周边绿化（圆柱树干 + 球冠） ---------- */
   const treeSpots = [
-    [-23, -18], [-15, -18], [15, -18], [23, -18],
-    [-23, 12], [-15, 12], [15, 12], [23, 12]
+    [-24, -20], [-16, -21], [16, -21], [24, -20],
+    [-30, -6], [30, -6], [-24, -12], [24, -12]
   ];
   treeSpots.forEach(([x, z]) => {
     const tree = new THREE.Group();
@@ -164,7 +164,10 @@ $(function () {
 
     let cursor = -totalW / 2;
 
-    buildings.forEach(building => {
+    // 每个楼宇地台用一种浅色，便于区分
+    const platformColors = [0xeaf3ff, 0xfff6e6, 0xe9fbef, 0xf3eaff, 0xffecf0];
+
+    buildings.forEach((building, bi) => {
       const list = roomsData.filter(r => r.building === building);
       const w = zoneW(list.length);
       const centerX = cursor + w / 2;
@@ -172,7 +175,7 @@ $(function () {
       // 楼宇地台
       const platform = new THREE.Mesh(
         new THREE.BoxGeometry(w, 0.3, zoneD),
-        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 })
+        new THREE.MeshStandardMaterial({ color: platformColors[bi % platformColors.length], roughness: 0.9 })
       );
       platform.position.set(centerX, 0.15, 0);
       platform.receiveShadow = true;
@@ -180,8 +183,8 @@ $(function () {
       roomsRoot.add(platform);
 
       // 楼宇名牌
-      const zoneLabel = makeLabel(building, 34);
-      zoneLabel.position.set(centerX, 2.6, 0);
+      const zoneLabel = makeLabel(building, 42);
+      zoneLabel.position.set(centerX, 2.9, 0);
       roomsRoot.add(zoneLabel);
 
       // 房间逐个入位：每排两间
@@ -205,8 +208,8 @@ $(function () {
           emissiveIntensity: 0,
           roughness: 0.55
         });
-        const base = new THREE.Mesh(new THREE.BoxGeometry(UNIT_W, 0.55, UNIT_D), baseMat);
-        base.position.y = 0.575;
+        const base = new THREE.Mesh(new THREE.BoxGeometry(UNIT_W, 0.7, UNIT_D), baseMat);
+        base.position.y = 0.65;
         base.castShadow = true;
         base.receiveShadow = true;
         group.add(base);
@@ -230,15 +233,15 @@ $(function () {
           const dr = Math.floor(d / dotCols);
           dot.position.set(
             -(dotCols - 1) * 0.32 / 2 + dc * 0.32,
-            0.88,
+            1.03,
             -(dotRows - 1) * 0.34 / 2 + dr * 0.34 - 0.25
           );
           group.add(dot);
         }
 
         // 房间名牌
-        const nameLabel = makeLabel(room.name, 22);
-        nameLabel.position.set(0, 1.35, -UNIT_D / 2 - 0.15);
+        const nameLabel = makeLabel(room.name, 26);
+        nameLabel.position.set(0, 1.6, -UNIT_D / 2 - 0.2);
         group.add(nameLabel);
 
         group.userData.baseMat = baseMat;
