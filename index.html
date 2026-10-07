@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="智慧自习室信息与数据展示中心：自习室查询、数据统计与三维导览">
+  <title>智慧自习室信息与数据展示中心 · 首页</title>
+  <!-- Bootstrap 本地离线包 -->
+  <link href="libs/bootstrap.min.css" rel="stylesheet">
+  <!-- 自定义样式 -->
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+  <!-- ============ 全站统一导航 ============ -->
+  <nav class="navbar navbar-expand-lg navbar-dark site-nav sticky-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">
+        <svg class="brand-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path fill="currentColor" d="M12 3 1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-3.72v3.71z"/>
+        </svg>
+        智慧自习室
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#mainNav" aria-controls="mainNav"
+              aria-expanded="false" aria-label="切换导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">首页</a></li>
+          <li class="nav-item"><a class="nav-link" href="rooms.html">自习室查询</a></li>
+          <li class="nav-item"><a class="nav-link" href="stats.html">数据统计</a></li>
+          <li class="nav-item"><a class="nav-link" href="scene.html">三维导览</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ 首页横幅 ============ -->
+  <header class="hero text-white">
+    <div class="container py-5">
+      <span class="hero-tag">校园公共服务 · 学习生活</span>
+      <h1 class="display-6 fw-bold mt-3">智慧自习室信息与数据展示中心</h1>
+      <p class="lead col-lg-8 mb-4">
+        查空闲自习室、看座位使用统计、逛三维楼层导览——
+        基于本地 JSON 数据驱动，一个站点全部搞定，手机与电脑均可使用。
+      </p>
+      <a class="btn btn-light btn-lg me-2 mb-2" href="rooms.html">立即查询自习室</a>
+      <a class="btn btn-outline-light btn-lg mb-2" href="scene.html">进入三维导览</a>
+    </div>
+  </header>
+
+  <main class="container py-5">
+    <!-- ============ 实时数据概览（由 rooms.json 驱动） ============ -->
+    <section aria-labelledby="overview-title" class="mb-5">
+      <h2 id="overview-title" class="h4 mb-1">实时概况</h2>
+      <p class="text-muted small mb-3" id="overview-meta">正在加载最新数据…</p>
+
+      <!-- 加载失败提示区（默认隐藏，由 JS 填充） -->
+      <div id="overview-error"></div>
+
+      <div class="row g-3" id="overview-cards">
+        <div class="col-6 col-lg-3">
+          <div class="card stat-card h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">自习室总数</p>
+              <p class="stat-num mb-0" id="stat-total">--</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card stat-card text-success h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">当前开放中</p>
+              <p class="stat-num mb-0" id="stat-open">--</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card stat-card text-warning h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">总座位数</p>
+              <p class="stat-num mb-0" id="stat-seats">--</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card stat-card text-info h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">当前空闲座位</p>
+              <p class="stat-num mb-0" id="stat-free">--</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 功能导航 ============ -->
+    <section aria-labelledby="modules-title" class="mb-5">
+      <h2 id="modules-title" class="h4 mb-4">功能导航</h2>
+      <div class="row g-4">
+        <div class="col-sm-6 col-lg-3">
+          <div class="card module-card h-100">
+            <div class="card-body d-flex flex-column">
+              <span class="card-badge bg-primary-subtle text-primary">模块一</span>
+              <h3 class="h5 card-title mt-2">信息首页</h3>
+              <p class="card-text text-muted flex-grow-1">平台统一入口，实时概况与各功能模块聚合展示。</p>
+              <a href="index.html" class="btn btn-outline-primary btn-sm mt-2">回到顶部</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card module-card h-100">
+            <div class="card-body d-flex flex-column">
+              <span class="card-badge bg-success-subtle text-success">模块二</span>
+              <h3 class="h5 card-title mt-2">自习室查询</h3>
+              <p class="card-text text-muted flex-grow-1">关键词搜索、楼宇与状态筛选，还可在线添加新自习室。</p>
+              <a href="rooms.html" class="btn btn-outline-success btn-sm mt-2">去查询</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card module-card h-100">
+            <div class="card-body d-flex flex-column">
+              <span class="card-badge bg-warning-subtle text-warning-emphasis">模块三</span>
+              <h3 class="h5 card-title mt-2">数据统计</h3>
+              <p class="card-text text-muted flex-grow-1">柱状图、饼图、折线图三类图表展示座位与人流数据。</p>
+              <a href="stats.html" class="btn btn-outline-warning btn-sm mt-2">看图表</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card module-card h-100">
+            <div class="card-body d-flex flex-column">
+              <span class="card-badge bg-info-subtle text-info-emphasis">模块四</span>
+              <h3 class="h5 card-title mt-2">三维导览</h3>
+              <p class="card-text text-muted flex-grow-1">Three.js 三维自习区沙盘，点击房间查看实时座位信息。</p>
+              <a href="scene.html" class="btn btn-outline-info btn-sm mt-2">进入三维导览</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 入馆须知 ============ -->
+    <section aria-labelledby="notice-title">
+      <h2 id="notice-title" class="h4 mb-3">入馆学习须知</h2>
+      <div class="card border-0 shadow-sm">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">1. 静音区请保持安静，手机调至静音，讨论问题请前往研讨区。</li>
+          <li class="list-group-item">2. 离开座位超过 30 分钟，物品将被工作人员收至服务台以便他人使用座位。</li>
+          <li class="list-group-item">3. 通宵自习室凭校园卡进入，请注意用电安全，凌晨时段建议结伴学习。</li>
+          <li class="list-group-item">4. 页面数据每 10 分钟同步一次，维修与闭馆信息以现场公告为准。</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ 页脚 ============ -->
+  <footer class="site-footer py-4 mt-5">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small">
+      <span>© <span data-year>2026</span> 智慧自习室信息与数据展示中心 · 软件开发综合实践期末大作业</span>
+      <span>首页 / <a href="rooms.html">自习室查询</a> / <a href="stats.html">数据统计</a> / <a href="scene.html">三维导览</a></span>
+    </div>
+  </footer>
+
+  <!-- jQuery 与 Bootstrap 本地包 -->
+  <script src="libs/jquery-3.7.1.min.js"></script>
+  <script src="libs/bootstrap.bundle.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>
