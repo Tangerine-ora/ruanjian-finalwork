@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三维导览 · 智慧自习室信息与数据展示中心</title>
+  <link href="libs/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+  <!-- ============ 全站统一导航 ============ -->
+  <nav class="navbar navbar-expand-lg navbar-dark site-nav sticky-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">
+        <svg class="brand-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path fill="currentColor" d="M12 3 1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-3.72v3.71z"/>
+        </svg>
+        智慧自习室
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#mainNav" aria-controls="mainNav"
+              aria-expanded="false" aria-label="切换导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">首页</a></li>
+          <li class="nav-item"><a class="nav-link" href="rooms.html">自习室查询</a></li>
+          <li class="nav-item"><a class="nav-link" href="stats.html">数据统计</a></li>
+          <li class="nav-item"><a class="nav-link" href="scene.html">三维导览</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ 三维场景容器 ============ -->
+  <div class="position-relative flex-grow-1">
+    <canvas id="scene-canvas"></canvas>
+
+    <!-- 场景控制按钮 -->
+    <div class="position-absolute d-flex gap-2" style="top: 10px; left: 14px; z-index: 20;">
+      <button type="button" class="btn btn-sm btn-light shadow-sm" id="btn-reset">复位视角</button>
+      <button type="button" class="btn btn-light btn-sm shadow-sm" id="btn-rotate" aria-pressed="false">自动旋转：关</button>
+    </div>
+
+    <!-- 点击房间后的信息卡 -->
+    <div class="card scene-panel d-none" id="room-panel">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <h2 class="h6 card-title mb-1" id="panel-name">房间名</h2>
+          <button type="button" class="btn-close btn-sm" id="panel-close" aria-label="关闭"></button>
+        </div>
+        <p class="small text-muted mb-2" id="panel-loc"></p>
+        <p class="small mb-1" id="panel-seats"></p>
+        <p class="small text-muted mb-0" id="panel-hours"></p>
+      </div>
+    </div>
+
+    <!-- 数据加载失败提示（默认隐藏） -->
+    <div class="card scene-panel d-none" id="scene-error" style="border-left: 4px solid #dc3545;">
+      <div class="card-body">
+        <h2 class="h6 text-danger">三维数据加载失败</h2>
+        <p class="small mb-2" id="scene-error-msg"></p>
+        <button type="button" class="btn btn-sm btn-outline-danger" id="scene-retry">重新加载</button>
+      </div>
+    </div>
+
+    <!-- 图例 -->
+    <div class="scene-legend">
+      <div><span class="legend-dot" style="background:#2ecc71;"></span>空闲充足（上座率 &lt; 60%）</div>
+      <div><span class="legend-dot" style="background:#f1c40f;"></span>座位紧张（60% - 90%）</div>
+      <div><span class="legend-dot" style="background:#e74c3c;"></span>接近满座（≥ 90%）</div>
+      <div><span class="legend-dot" style="background:#9aa3ad;"></span>维修 / 闭馆</div>
+    </div>
+
+    <p class="scene-hint">鼠标/手指拖拽旋转 · 滚轮/双指缩放 · 点击彩色房间查看实时座位</p>
+  </div>
+
+  <!-- jQuery、Bootstrap 与 Three.js 本地包 -->
+  <script src="libs/jquery-3.7.1.min.js"></script>
+  <script src="libs/bootstrap.bundle.min.js"></script>
+  <script src="libs/three.min.js"></script>
+  <script src="libs/OrbitControls.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/scene.js"></script>
+</body>
+</html>
